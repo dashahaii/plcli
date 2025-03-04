@@ -8,7 +8,12 @@ fi
 
 # argument functions
 help_task() {
-    cat <<EOF
+  # Option for terminals with 256-color support: light blue (color code 12)
+  LIGHT_BLUE=$(tput setaf 12)
+  RESET=$(tput sgr0)
+  
+  cat <<EOF
+${LIGHT_BLUE}
 Usage: plcli [options]
 
 No options given will clear the screen & print the planner.
@@ -25,6 +30,7 @@ Task Options:
 
     -d, --delete ID
         Delete a task given ID number.
+${RESET}
 EOF
 }
 
@@ -66,16 +72,84 @@ list_task() {
         return
     fi
 
-    echo "ID | Description | Priority | Due Date | Notes"
+    clear
+    echo " "
+    echo "ID | Description | Priority | Due Date | Additional Note"
     echo "--------------------------------------------------------------"
     while IFS='|' read -r ID NAME PRIORITY DUE NOTE; do
-        echo"$ID | $NAME | ${PRIORITY: -N/A} | ${DUE: -N/A} | ${NOTE: -N/A}"
+        echo "$ID | $NAME | ${PRIORITY} | ${DUE} | ${NOTE}"
     done < "$TASKS_DATA"
+    echo " "
+
+    # TODO: stop printing bars after arguments aren't found. OR standardize spacing first.
+
+
 }
 
-# main logic
+# *main logic*
 if [ $# -eq 0 ]; then
     list_task
     exit 0
 fi
+
+# argument parsing
+case "$1" in 
+    -a|--add)
+        # example: plcli -a "NAME" {FLAG} [all other arguments optional] {FLAG} [...]
+        shift
+        NAME=""
+        PRIORITY=""
+        DUE=""
+        NOTE=""
+
+        # Check for name, non-optional.
+        if [[ $# -gt 0 ]]; then
+            NAME="$1"
+            shift
+        else
+            echo "Error: No name provided with --add argument."
+            echo "plcli -h for usage help."
+            exit 1
+        fi
+
+        # Loop through command args to find optional flags.
+        while [[ $# -gt 0 ]]; do
+            KEY="$1"
+            case $KEY in
+                -p|--priority)
+                    PRIORITY="$2"
+                    shift
+                    shift
+                    ;;
+                -d|--due-date)
+                    DUE="$2"
+                    shift
+                    shift
+                    ;;
+                -n|--note|--notes)
+                    NOTE="$2"
+                    shift
+                    shift
+                    ;;
+                *)
+                    echo "Error: unknown add argument: $1"
+                    exit 1
+                    ;;
+            esac
+        done
+
+        add_task "$NAME" "$PRIORITY" "$DUE" "$NOTE"
+        ;;
+
+    -h|--help)
+        help_task
+        ;;
+    *)
+        echo "Unknown option: $1"
+        help_task
+        exit 1
+        ;;
+esac    
+
+
 
