@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# TODO: Update txt to csv, standardize spacing with tabs for output,
-#        keep pipes for output.
-
-TASKS_DATA="tasks.txt"
+TASKS_DATA="tasks.csv"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
     # TODO: if its the user's first time, do a setup process
@@ -53,7 +50,7 @@ add_task() {
 
     # inst. a new ID number
     local ID=$(generate_id)
-    echo "$ID|$NAME|$PRIORITY|$DUE|$NOTE" >> "$TASKS_DATA"
+    echo "$ID,$NAME,$PRIORITY,$DUE,$NOTE" >> "$TASKS_DATA"
     echo "Task added with ID: $ID"
 
 }
@@ -79,7 +76,7 @@ delete_task() {
             FOUND="true"
             continue
         fi
-        MOD_DATA+="${ID}|${NAME}|${PRIORITY}|${DUE}|${NOTE}\n"
+        MOD_DATA+="${ID},${NAME},${PRIORITY},${DUE},${NOTE}\n"
     done < "$TASKS_DATA"
 
     if [ "$FOUND" = "false" ]; then
@@ -97,8 +94,9 @@ generate_id() {
     if [ ! -s "$TASKS_DATA" ]; then
         echo 1
     else
-        # take id from each line, sort numerically, then get tail
-        MAX=$(grep -o '^[^|]*' "$TASKS_DATA" | sort -n | tail -1)
+        # Get the first field (ID) from each line, sort numerically, pick highest
+        local MAX
+        MAX=$(grep -o '^[^,]*' "$TASKS_DATA" | sort -n | tail -1)
         echo $((MAX+1))
     fi
 }
@@ -111,15 +109,13 @@ list_task() {
 
     clear
     echo " "
-    echo "ID | Name | Priority | Due Date | Additional Note"
-    echo "--------------------------------------------------------------"
-    while IFS='|' read -r ID NAME PRIORITY DUE NOTE; do
-        echo "$ID | $NAME | ${PRIORITY} | ${DUE} | ${NOTE}"
+    echo -e "|ID:\t|Name:\t\t|Priority:\t|Due Date:\t|Additional Note:"
+    echo "-------------------------------------------------------------------------------------"
+    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
+        echo -e "|${ID}\t|${NAME}\t|\t${PRIORITY}\t|\t${DUE}\t|\t${NOTE}"
     done < "$TASKS_DATA"
+    echo "-------------------------------------------------------------------------------------"
     echo " "
-
-    # TODO: stop printing bars after arguments aren't found. OR standardize spacing first.
-
 }
 
 # *main logic*
