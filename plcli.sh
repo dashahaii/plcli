@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO: Update txt to csv, standardize spacing with tabs for output,
+#        keep pipes for output.
+
 TASKS_DATA="tasks.txt"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
@@ -55,6 +58,40 @@ add_task() {
 
 }
 
+delete_task() {
+    # TODO: Re-order remaining array of IDs afterward 
+    # to take the place of deleted one.
+    local INPUT_ID="$1"
+    if [ -z "$INPUT_ID" ]; then
+        echo "Error: you must specify an ID to delete."
+        exit 1
+    fi
+
+    local MOD_DATA=""
+    local FOUND="false"
+
+    while IFS='|' read -r ID NAME PRIORITY DUE NOTE; do
+        # Skip empty lines in the file
+        if [ -z "$ID" ]; then
+            continue
+        fi
+        if [ "$ID" = "$INPUT_ID" ]; then
+            FOUND="true"
+            continue
+        fi
+        MOD_DATA+="${ID}|${NAME}|${PRIORITY}|${DUE}|${NOTE}\n"
+    done < "$TASKS_DATA"
+
+    if [ "$FOUND" = "false" ]; then
+        echo "Error: Task with ID '$INPUT_ID' not found."
+        exit 1
+    fi
+
+    # Remove any empty lines before saving
+    echo -e "$MOD_DATA" | sed '/^$/d' > "$TASKS_DATA"
+    echo "Task with ID '$INPUT_ID' deleted."
+}
+
 # helper functions
 generate_id() {
     if [ ! -s "$TASKS_DATA" ]; then
@@ -74,7 +111,7 @@ list_task() {
 
     clear
     echo " "
-    echo "ID | Description | Priority | Due Date | Additional Note"
+    echo "ID | Name | Priority | Due Date | Additional Note"
     echo "--------------------------------------------------------------"
     while IFS='|' read -r ID NAME PRIORITY DUE NOTE; do
         echo "$ID | $NAME | ${PRIORITY} | ${DUE} | ${NOTE}"
@@ -82,7 +119,6 @@ list_task() {
     echo " "
 
     # TODO: stop printing bars after arguments aren't found. OR standardize spacing first.
-
 
 }
 
@@ -140,6 +176,12 @@ case "$1" in
 
         add_task "$NAME" "$PRIORITY" "$DUE" "$NOTE"
         ;;
+    
+    -d|--delete)
+        shift
+        ID="$1"
+        delete_task "$ID"
+        ;;
 
     -h|--help)
         help_task
@@ -150,6 +192,4 @@ case "$1" in
         exit 1
         ;;
 esac    
-
-
 
