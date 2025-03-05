@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# reorder IDs after deletion
-# implement update_task
-# implement reorder_task
-# get the time
+# implement character checks
+# create header, get the time
 # complete setup process
+# add interactive -ai addition
+# allow for notes to be longer.
+# add -rn for reading long notes
 # color the output nicely
 
 TASKS_DATA="tasks.csv"
@@ -35,6 +36,9 @@ Task Options:
 
     -d, --delete ID
         Delete a task given ID number.
+
+    -s, --swap ID1 ID2
+        Swap the ID numbers of two tasks, reordering them in default view.
 ${RESET}
 EOF
 }
@@ -117,10 +121,7 @@ delete_task() {
     local FOUND="false"
 
     while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
-        # Skip empty lines in the file
-        if [ -z "$ID" ]; then
-            continue
-        fi
+        [ -z "$ID" ] && continue
         if [ "$ID" = "$INPUT_ID" ]; then
             FOUND="true"
             continue
@@ -133,9 +134,55 @@ delete_task() {
         exit 1
     fi
 
-    # Remove any empty lines before saving
     echo -e "$MOD_DATA" | sed '/^$/d' > "$TASKS_DATA"
     echo "Task with ID '$INPUT_ID' deleted."
+
+    # Realign tasks so there are no permanent ID gaps
+    local reordered=""
+    local i=1
+
+    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
+        [ -z "$ID" ] && continue
+        reordered+="${i},${NAME},${PRIORITY},${DUE},${NOTE}\n"
+        ((i++))
+    done < "$TASKS_DATA"
+
+    echo -e "$reordered" | sed '/^$/d' > "$TASKS_DATA"
+    echo "Some tasks have been reordered to remove ID gaps."
+}
+
+swap_task() {
+    local ID1="$1"
+    local ID2="$2"
+        if [ -z "$ID1" ] || [ -z "$ID2" ]; then
+        echo "Error: you must specify two IDs to swap."
+        exit 1
+    fi
+
+    local FOUND1="false"
+    local FOUND2="false"
+    local MOD_DATA=""
+
+    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
+        [ -z "$ID" ] && continue
+        if [ "$ID" = "$ID1" ]; then
+            FOUND1="true"
+            ID="$ID2"
+        elif  [ "$ID" = "$ID2" ]; then
+            FOUND2="true"
+            ID="$ID1"
+        fi
+        MOD_DATA+="${ID},${NAME},${PRIORITY},${DUE},${NOTE}\n"
+    done < "$TASKS_DATA"
+
+    if [ "$FOUND1" = "false" ] || [ "$FOUND2" = "false" ]; then
+        echo "Error: One or both IDs not found in file."
+        exit 1
+    fi
+
+    echo -e "$MOD_DATA" | sed '/^$/d' > "$TASKS_DATA"
+    sort -t',' -k1n "$TASKS_DATA" -o "$TASKS_DATA"
+    echo "Tasks with IDs $ID1 and $ID2 have been swapped."
 }
 
 # helper functions
@@ -267,6 +314,13 @@ case "$1" in
         shift
         ID="$1"
         delete_task "$ID"
+        ;;
+
+    -s|--swap)
+        shift
+        ID1="$1"
+        ID2="$2"
+        swap_task "$ID1" "$ID2"
         ;;
 
     -h|--help)
