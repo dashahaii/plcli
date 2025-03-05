@@ -30,7 +30,7 @@ Task Options:
     -a, --add "NAME" [-p PRIORITY] [-d DUE] [-n NOTE]
         Add a new task with optional values.
 
-    -u, --update ID [-m "NEW TITLE"] [-p PRIORITY] [-d DUE] [-n NOTE]
+    -u, --update ID [-t "NEW TITLE"] [-p PRIORITY] [-d DUE] [-n NOTE]
         Update a task given ID number, change any value optionally.
 
     -d, --delete ID
@@ -58,6 +58,52 @@ add_task() {
     echo "$ID,$NAME,$PRIORITY,$DUE,$NOTE" >> "$TASKS_DATA"
     echo "Task added with ID: $ID"
 
+}
+
+update_task() {
+    local TARGET_ID="$1"
+    local NEW_NAME="$2"
+    local NEW_PRIORITY="$3"
+    local NEW_DUE="$4"
+    local NEW_NOTE="$5"
+
+    if [ -z "$TARGET_ID" ]; then
+        echo "Error: no task ID specified to update."
+        exit 1
+    fi
+
+    local MOD_DATA=""
+    local FOUND="false"
+
+    while IFS="," read -r ID NAME PRIORITY DUE NOTE; do
+        if [ -z "$ID" ]; then
+            continue
+        fi
+        if [ "$ID" = "$TARGET_ID" ]; then
+            FOUND=true
+            if [ -n "$NEW_NAME" ]; then
+                NAME="$NEW_NAME"
+            fi
+            if [ -n "$NEW_PRIORITY" ]; then
+                PRIORITY="$NEW_PRIORITY"
+            fi
+            if [ -n "$NEW_DUE" ]; then
+                DUE="$NEW_DUE"
+            fi
+            if [ -n "$NEW_NOTE" ]; then
+                NOTE="$NEW_NOTE"
+            fi
+        fi
+        MOD_DATA+="${ID},${NAME},${PRIORITY},${DUE},${NOTE}\n"
+    done < "$TASKS_DATA"
+
+    if [ "$FOUND" = "false" ]; then
+        echo "Error: Task with ID '$TARGET_ID' not found."
+        exit 1
+    fi
+
+    echo -e "$MOD_DATA" | sed '/^$/d' > "$TASKS_DATA"
+    echo "Task with ID '$TARGET_ID' updated."
 }
 
 delete_task() {
@@ -176,6 +222,45 @@ case "$1" in
         done
 
         add_task "$NAME" "$PRIORITY" "$DUE" "$NOTE"
+        ;;
+
+    -u|--update)
+        shift
+        ID="$1"
+        shift
+        NEW_NAME=""
+        NEW_PRIORITY=""
+        NEW_DUE=""
+        NEW_NOTE=""
+
+        # TODO: test for when ID isn't supplied, inform user!
+        while [[ $# > 0 ]]; do
+            KEY="$1"
+            case $KEY in
+                -t|--title)
+                    NEW_NAME="$2"
+                    shift 2
+                    ;;
+                -p|--priority)
+                    NEW_PRIORITY="$2"
+                    shift 2
+                    ;;
+                -d|--due)
+                    NEW_DUE="$2"
+                    shift 2
+                    ;;
+                -n|--note)
+                    NEW_NOTE="$2"
+                    shift 2
+                    ;;
+                *)
+                    echo "Error: unknown update argument: $1"
+                    exit 1
+                    ;;
+            esac
+        done
+
+        update_task "$ID" "$NEW_NAME" "$NEW_PRIORITY" "$NEW_DUE" "$NEW_NOTE"
         ;;
     
     -d|--delete)
