@@ -1,14 +1,19 @@
 #!/bin/bash
 
+# reorder IDs after deletion
+# implement update_task
+# implement reorder_task
+# get the time
+# complete setup process
+# color the output nicely
+
 TASKS_DATA="tasks.csv"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
-    # TODO: if its the user's first time, do a setup process
 fi
 
 # argument functions
 help_task() {
-  # Option for terminals with 256-color support: light blue (color code 12)
   LIGHT_BLUE=$(tput setaf 12)
   RESET=$(tput sgr0)
   
@@ -56,8 +61,6 @@ add_task() {
 }
 
 delete_task() {
-    # TODO: Re-order remaining array of IDs afterward 
-    # to take the place of deleted one.
     local INPUT_ID="$1"
     if [ -z "$INPUT_ID" ]; then
         echo "Error: you must specify an ID to delete."
@@ -67,7 +70,7 @@ delete_task() {
     local MOD_DATA=""
     local FOUND="false"
 
-    while IFS='|' read -r ID NAME PRIORITY DUE NOTE; do
+    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
         # Skip empty lines in the file
         if [ -z "$ID" ]; then
             continue
