@@ -111,14 +111,16 @@ list_task() {
     fi
 
     clear
-    echo " "
-    echo -e "|ID:\t|Name:\t\t|Priority:\t|Due Date:\t|Additional Note:"
-    echo "-------------------------------------------------------------------------------------"
+    # Define header with fixed column widths
+    printf "\n| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "ID:" "Name:" "Priority:" "Due Date:" "Additional Note:"
+    echo '--------------------------------------------------------------------------------------------------'
+
+    # Read the CSV file 
     while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
-        echo -e "|${ID}\t|${NAME}\t|\t${PRIORITY}\t|\t${DUE}\t|\t${NOTE}"
+        printf "| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "$ID" "$NAME" "$PRIORITY" "$DUE" "$NOTE"
     done < "$TASKS_DATA"
-    echo "-------------------------------------------------------------------------------------"
-    echo " "
+    
+    echo '--------------------------------------------------------------------------------------------------'
 }
 
 # *main logic*
