@@ -11,6 +11,10 @@ MAX_PRIORITY=10
 MAX_DUE=12
 MAX_NOTE=30
 
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+RESET=$(tput sgr0)
+
 TASKS_DATA="tasks.csv"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
@@ -79,6 +83,9 @@ No options given will clear the screen & print the planner.
 Task Options:
     -h, --help
         Displays tasks help message.
+
+    -ai, --add-interactive
+        Add a new task with an interactive prompt.
 
     -a, --add "NAME" [-p PRIORITY] [-d DUE] [-n NOTE]
         Add a new task with optional values.
@@ -258,6 +265,21 @@ fi
 
 # argument parsing
 case "$1" in 
+    -ai|--add-interactive)
+        # Interactive mode: prompt user for each field
+        echo "Enter new task details (interactive mode)."
+        
+        read -p "Task Name (required): " NAME
+        if [ -z "$NAME" ]; then
+            echo "${RED}Error: A task name is required.${RESET}"
+            exit 1
+        fi
+        read -p "Priority (optional): " PRIORITY
+        read -p "Due Date (optional): " DUE
+        read -p "Additional Note (optional): " NOTE
+        add_task "$NAME" "$PRIORITY" "$DUE" "$NOTE"
+        ;;
+
     -a|--add)
         # example: plcli -a "NAME" {FLAG} [all other arguments optional] {FLAG} [...]
         shift
