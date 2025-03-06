@@ -156,22 +156,6 @@ plcli -s 1 2
 
 ---
 
-## Configuration & Environment
-
-- **`tasks.csv`** is generated in the script’s **current working directory** if not found.  
-- **`tput`** or any terminal color capabilities are optional.  
-- The script is tested primarily on **Ubuntu**-like environments with **Bash 4+**.
-
----
-
-## Known Limitations / Future Enhancements
-
-- Currently uses **CSV** with no escaping for commas in fields (avoid adding commas in your task data).  
-- No advanced search or filtering.  
-- Could add date validation for `due` fields in the future.  
-
----
-
 ## Contributing
 
 - Fork this repository.  
@@ -182,9 +166,4 @@ plcli -s 1 2
 
 ## License
 
-*(Optional: Insert your chosen open-source license here, such as MIT, Apache-2.0, or GPL.)*
-
----
-
-**Enjoy using plannerCLI!**  
-If you have questions or suggestions, feel free to open an issue or submit a pull request.
+*APACHE 2.0 found in LICENSE file.*
