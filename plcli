@@ -110,7 +110,7 @@ add_task() {
 
     # ensure task has a name
     if [ -z "$NAME" ]; then
-        echo "Error: please give a name for this task."
+        echo "${RED}Error: please give a name for this task.${RESET}"
         exit 1
     fi
 
@@ -135,7 +135,7 @@ update_task() {
     local NEW_NOTE="$5"
 
     if [ -z "$TARGET_ID" ]; then
-        echo "Error: no task ID specified to update."
+        echo "${RED}Error: no task ID specified to update.${RESET}"
         exit 1
     fi
 
@@ -171,7 +171,7 @@ update_task() {
     done < "$TASKS_DATA"
 
     if [ "$FOUND" = "false" ]; then
-        echo "Error: Task with ID '$TARGET_ID' not found."
+        echo "${RED}Error: Task with ID '$TARGET_ID' not found.${RESET}"
         exit 1
     fi
 
@@ -182,7 +182,7 @@ update_task() {
 delete_task() {
     local INPUT_ID="$1"
     if [ -z "$INPUT_ID" ]; then
-        echo "Error: you must specify an ID to delete."
+        echo "${RED}Error: you must specify an ID to delete.${RESET}"
         exit 1
     fi
 
@@ -199,7 +199,7 @@ delete_task() {
     done < "$TASKS_DATA"
 
     if [ "$FOUND" = "false" ]; then
-        echo "Error: Task with ID '$INPUT_ID' not found."
+        echo "${RED}Error: Task with ID '$INPUT_ID' not found.${RESET}"
         exit 1
     fi
 
@@ -224,7 +224,7 @@ swap_task() {
     local ID1="$1"
     local ID2="$2"
         if [ -z "$ID1" ] || [ -z "$ID2" ]; then
-        echo "Error: you must specify two IDs to swap."
+        echo "${RED}Error: you must specify two IDs to swap.${RESET}"
         exit 1
     fi
 
@@ -245,7 +245,7 @@ swap_task() {
     done < "$TASKS_DATA"
 
     if [ "$FOUND1" = "false" ] || [ "$FOUND2" = "false" ]; then
-        echo "Error: One or both IDs not found in file."
+        echo "${RED}Error: One or both IDs not found in file.${RESET}"
         exit 1
     fi
 
@@ -291,7 +291,7 @@ case "$1" in
             NAME="$1"
             shift
         else
-            echo "Error: No name provided with --add argument."
+            echo "${RED}Error: No name provided with --add argument.${RESET}"
             echo "plcli -h for usage help."
             exit 1
         fi
@@ -316,7 +316,7 @@ case "$1" in
                     shift
                     ;;
                 *)
-                    echo "Error: unknown add argument: $1"
+                    echo "${RED}Error: unknown add argument: $1${RESET}"
                     exit 1
                     ;;
             esac
@@ -355,7 +355,7 @@ case "$1" in
                     shift 2
                     ;;
                 *)
-                    echo "Error: unknown update argument: $1"
+                    echo "${RED}Error: unknown update argument: $1${RESET}"
                     exit 1
                     ;;
             esac
@@ -381,7 +381,7 @@ case "$1" in
         help_task
         ;;
     *)
-        echo "Unknown option: $1"
+        echo "${RED}Error: unknown option: $1${RESET}"
         help_task
         exit 1
         ;;
