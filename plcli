@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# create header, get the time
-# add interactive -ai addition
 # allow for notes to be longer, add -rn for reading long notes
 # color the output nicely
 
