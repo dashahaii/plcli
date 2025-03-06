@@ -8,10 +8,58 @@
 # add -rn for reading long notes
 # color the output nicely
 
+# Character Limits
+MAX_NAME=25
+MAX_PRIORITY=10
+MAX_DUE=12
+MAX_NOTE=30
+
 TASKS_DATA="tasks.csv"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
 fi
+
+# helper functions
+generate_id() {
+    if [ ! -s "$TASKS_DATA" ]; then
+        echo 1
+    else
+        # Get the first field (ID) from each line, sort numerically, pick highest
+        local MAX
+        MAX=$(grep -o '^[^,]*' "$TASKS_DATA" | sort -n | tail -1)
+        echo $((MAX+1))
+    fi
+}
+
+list_task() {
+    if [ ! -s "$TASKS_DATA" ]; then
+        echo "No tasks found in data file."
+        return
+    fi
+
+    clear
+    # Define header with fixed column widths
+    printf "\n| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "ID:" "Name:" "Priority:" "Due Date:" "Additional Note:"
+    echo '--------------------------------------------------------------------------------------------------'
+
+    # Read the CSV file 
+    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
+        printf "| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "$ID" "$NAME" "$PRIORITY" "$DUE" "$NOTE"
+    done < "$TASKS_DATA"
+    
+    echo '--------------------------------------------------------------------------------------------------'
+}
+
+check_length() {
+    local value="$1"
+    local max_len="$2"
+    local field_name="$3"
+
+    if [ "${#value}" -gt "$max_len" ]; then
+        echo "${RED}Error: '$field_name' cannot exceed $max_len characters.${RESET}"
+        exit 1
+    fi
+}
 
 # argument functions
 help_task() {
@@ -57,6 +105,12 @@ add_task() {
         exit 1
     fi
 
+    # Check length constraints
+    check_length "$NAME" "$MAX_NAME" "Name"
+    check_length "$PRIORITY" "$MAX_PRIORITY" "Priority"
+    check_length "$DUE" "$MAX_DUE" "Due"
+    check_length "$NOTE" "$MAX_NOTE" "Note"
+
     # inst. a new ID number
     local ID=$(generate_id)
     echo "$ID,$NAME,$PRIORITY,$DUE,$NOTE" >> "$TASKS_DATA"
@@ -97,6 +151,12 @@ update_task() {
             if [ -n "$NEW_NOTE" ]; then
                 NOTE="$NEW_NOTE"
             fi
+
+            # After merging, check length constraints
+            check_length "$NAME"      "$MAX_NAME"     "Name"
+            check_length "$PRIORITY"  "$MAX_PRIORITY" "Priority"
+            check_length "$DUE"       "$MAX_DUE"      "Due"
+            check_length "$NOTE"      "$MAX_NOTE"     "Note"
         fi
         MOD_DATA+="${ID},${NAME},${PRIORITY},${DUE},${NOTE}\n"
     done < "$TASKS_DATA"
@@ -185,36 +245,6 @@ swap_task() {
     echo "Tasks with IDs $ID1 and $ID2 have been swapped."
 }
 
-# helper functions
-generate_id() {
-    if [ ! -s "$TASKS_DATA" ]; then
-        echo 1
-    else
-        # Get the first field (ID) from each line, sort numerically, pick highest
-        local MAX
-        MAX=$(grep -o '^[^,]*' "$TASKS_DATA" | sort -n | tail -1)
-        echo $((MAX+1))
-    fi
-}
-
-list_task() {
-    if [ ! -s "$TASKS_DATA" ]; then
-        echo "No tasks found in data file."
-        return
-    fi
-
-    clear
-    # Define header with fixed column widths
-    printf "\n| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "ID:" "Name:" "Priority:" "Due Date:" "Additional Note:"
-    echo '--------------------------------------------------------------------------------------------------'
-
-    # Read the CSV file 
-    while IFS=',' read -r ID NAME PRIORITY DUE NOTE; do
-        printf "| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "$ID" "$NAME" "$PRIORITY" "$DUE" "$NOTE"
-    done < "$TASKS_DATA"
-    
-    echo '--------------------------------------------------------------------------------------------------'
-}
 
 # *main logic*
 if [ $# -eq 0 ]; then
