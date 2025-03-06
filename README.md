@@ -38,11 +38,11 @@ A simple shell-based planner that manages tasks in a CSV file. The **plannerCLI*
 1. **Clone or Download** this repository, navigate to project folder.  
 2. **Make the script executable**:
    ```bash
-   chmod +x ./plcli.sh
+   chmod +x ./plcli
    ```
 3. *(Optional)* Place it in your `$PATH` for easier usage:
    ```bash
-   sudo cp ./plcli.sh /usr/local/bin/
+   sudo cp ./plcli /usr/local/bin/
    ```
    Now you can run `plcli` from anywhere.
 
