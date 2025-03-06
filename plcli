@@ -4,8 +4,11 @@
 # color the output nicely
 
 TASKS_DIR="$HOME/.local/share/plcli"
-mkdir -p "$TASKS_DIR"      # Create directory if missing
+mkdir -p "$TASKS_DIR"  
 TASKS_DATA="$TASKS_DIR/tasks.csv"
+if [ ! -f "$TASKS_DATA" ]; then
+    touch "$TASKS_DATA"
+fi
 
 # Character Limits
 MAX_NAME=25
@@ -17,10 +20,6 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 RESET=$(tput sgr0)
 
-TASKS_DATA="$TASKS_DIR/tasks.csv"
-if [ ! -f "$TASKS_DATA" ]; then
-    touch "$TASKS_DATA"
-fi
 
 # helper functions
 generate_id() {
@@ -338,7 +337,6 @@ case "$1" in
         NEW_DUE=""
         NEW_NOTE=""
 
-        # TODO: test for when ID isn't supplied, inform user!
         while [[ $# > 0 ]]; do
             KEY="$1"
             case $KEY in
