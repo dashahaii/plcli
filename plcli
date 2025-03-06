@@ -3,6 +3,10 @@
 # allow for notes to be longer, add -rn for reading long notes
 # color the output nicely
 
+TASKS_DIR="$HOME/.local/share/plcli"
+mkdir -p "$TASKS_DIR"      # Create directory if missing
+TASKS_DATA="$TASKS_DIR/tasks.csv"
+
 # Character Limits
 MAX_NAME=25
 MAX_PRIORITY=10
@@ -13,7 +17,7 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 RESET=$(tput sgr0)
 
-TASKS_DATA="tasks.csv"
+TASKS_DATA="$TASKS_DIR/tasks.csv"
 if [ ! -f "$TASKS_DATA" ]; then
     touch "$TASKS_DATA"
 fi
