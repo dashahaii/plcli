@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# implement character checks
 # create header, get the time
-# complete setup process
 # add interactive -ai addition
-# allow for notes to be longer.
-# add -rn for reading long notes
+# allow for notes to be longer, add -rn for reading long notes
 # color the output nicely
 
 # Character Limits
@@ -32,6 +29,10 @@ generate_id() {
 }
 
 list_task() {
+
+    local CURRENT_TIME
+    CURRENT_TIME=$(date +"%m/%d/%Y %I:%M %p")
+
     if [ ! -s "$TASKS_DATA" ]; then
         echo "No tasks found in data file."
         return
@@ -39,7 +40,9 @@ list_task() {
 
     clear
     # Define header with fixed column widths
-    printf "\n| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "ID:" "Name:" "Priority:" "Due Date:" "Additional Note:"
+    echo "Welcome to plannerCLI! (plcli)                 (Version 0.0.1) | Last Refresh: $CURRENT_TIME"
+    echo '=================================================================================================='
+    printf "| %-5s | %-25s | %-10s | %-12s | %-30s |\n" "ID:" "Name:" "Priority:" "Due Date:" "Additional Note:"
     echo '--------------------------------------------------------------------------------------------------'
 
     # Read the CSV file 
@@ -48,6 +51,7 @@ list_task() {
     done < "$TASKS_DATA"
     
     echo '--------------------------------------------------------------------------------------------------'
+    echo '=================================================================================================='
 }
 
 check_length() {
