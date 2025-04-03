@@ -1,7 +1,12 @@
-# plannerCLI (plcli)
 
-A simple shell-based planner that manages tasks in a CSV file. The **plannerCLI** script supports listing, adding, updating, swapping, and deleting tasks, all from your terminal.
-
+```
+Welcome to plannerCLI! 04/03/2025 10:53
+===============================================================================
+| ID:   | Name:           | Priority:  | Due Date:    | Additional Note:      |
+-------------------------------------------------------------------------------
+| 1:    | New task        | High       | 04/03/2025   | N/A                   |
+===============================================================================
+```
 ## Features
 
 1. **Task Management**  
